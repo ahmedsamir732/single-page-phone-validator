@@ -8,7 +8,6 @@ require './vendor/autoload.php';
 /* ['country' => '251'] */
 /* ['valid' => false] */
 $list = Phone::list($_GET);
-// var_dump($_GET);var_dump($list);die;
 $countryList = CountryHelper::getCountries();
 ?>
 <html>

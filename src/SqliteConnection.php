@@ -37,7 +37,6 @@ class SqliteConnection extends \SQLite3
     protected function createRegexpFunction()
     {
         $regexp = function ($pattern, $string) {
-            // var_dump('/'.$pattern.'/', $string, preg_match('/'.$pattern.'/', $string));
             if (preg_match('/'.$pattern.'/', $string)) {
                 return true;
             }
