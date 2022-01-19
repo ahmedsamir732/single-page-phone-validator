@@ -1,0 +1,19 @@
+{
+    "name": "ahmedsamir/phone",
+    "description": "validate phone according to each country format.",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phone\\": "src"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ahmed Samir",
+            "email": "ahmedsamir732@gmail.com"
+        }
+    ],
+    "require": {}
+}
