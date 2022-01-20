@@ -20,6 +20,12 @@ class Phone
         return $resource->page($page)->get($filters);
     }
 
+    public static function total(array $filters)
+    {
+        $resource = self::getResource('sqlite');
+        return $resource->count($filters);
+    }
+
     public static function getResource($type): ResourcInterface
     {
         switch ($type) {

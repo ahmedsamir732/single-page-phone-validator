@@ -7,7 +7,6 @@
 namespace Phone;
 
 use SQLite3;
-
 /**
  * SqliteConnection
  * 
@@ -27,11 +26,12 @@ class SqliteConnection extends \SQLite3
      */
     public function __construct()
     {
-        if (! self::$opened) {
+        // if (! self::$opened) {
+            // var_dump('1111111111111111');
             $this->open(__DIR__. '/../sample.db');
             $this->createRegexpFunction();
             self::$opened = true;
-        }
+        // }
     }
 
     protected function createRegexpFunction()

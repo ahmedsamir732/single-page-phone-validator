@@ -27,4 +27,12 @@ interface ResourcInterface
      * @return array
      */
     public function get(array $filters = []): array;
+
+    /**
+     * count all phones after applying filters.
+     *
+     * @param array $filters
+     * @return int
+     */
+    public function count(): int;
 }

@@ -27,7 +27,7 @@ class SqliteResource implements ResourcInterface
      *
      * @var int
      */
-    protected $page = null;
+    protected $page = 1;
 
     /**
      * const PER_PAGE
@@ -65,12 +65,35 @@ class SqliteResource implements ResourcInterface
     public function get(array $filters = []): array
     {
         $query = 'SELECT '.$this->buildSelect().' FROM customer ';
-        if (!empty($filters)) {
-            $conditions = $this->buildConditions($filters);
-            $query .= 'WHERE '. $this->buildQuery($conditions);
-        }
-
+        $query .= $this->addFilters($filters);
+        $query .= $this->addOffset();
         $result = $this->connection->query($query);
+        return $this->generateList($result);
+    }
+
+    /**
+     * count all phones after applying filters.
+     *
+     * @param array $filters
+     * @return int
+     */
+    public function count(array $filters = []): int
+    {
+        $query = 'SELECT count(*) count FROM customer ';
+        $query .= $this->addFilters($filters);
+        $result = $this->connection->query($query);
+        $result = $result->fetchArray();
+        return $result['count'];
+    }
+
+    /**
+     * generateList function
+     *
+     * @param [type] $result
+     * @return array
+     */
+    protected function generateList($result): array
+    {
         $rows = [];
         if ($result) {
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -78,6 +101,26 @@ class SqliteResource implements ResourcInterface
             }
         }
         return $rows;
+    }
+
+    /**
+     * addFilters
+     *
+     * @param array $filters
+     * @return string
+     */
+    protected function addFilters(array $filters): string
+    {
+        $query = '';
+        if (!empty($filters)) {
+            $conditions = $this->buildConditions($filters);
+            $conditionsQuery = $this->buildQuery($conditions);
+            if ($conditionsQuery) {
+                $query = 'WHERE '. $conditionsQuery;
+            }
+        }
+
+        return $query;
     }
 
     /**
@@ -91,22 +134,31 @@ class SqliteResource implements ResourcInterface
         $conditions = [];
         if (!empty($filters['country'])) {
             $country = CountryHelper::getCountry((int) $filters['country']);
-            // $conditions['and'] = "phone regexp '".$country['regex']."'";
             $conditions[] = [
-                'and', 
-                "countryCode = ".$country['code']
+                'and',
+                "phone regexp '".$country['regex']."'"
             ];
         }
         if (isset($filters['valid'])) {
-            if ($filters['valid'] == 1) {
+            $countries = CountryHelper::getCountries();
+            foreach ($countries as $countryCode => $country) {
+                $phoneConditions = [];
+                if ($filters['valid'] == 1) {
+                    $phoneConditions[] = [
+                        'or',  
+                        "phone regexp '".$country['regex']."'"
+                    ];           
+                } elseif ($filters['valid'] == 0) {
+                    $phoneConditions[] = [
+                        'and',  
+                        "phone not regexp '".$country['regex']."'"
+                    ];
+                }
+            }
+            if (!empty($phoneConditions)) {
                 $conditions[] = [
                     'and',  
-                    "countryCode IS NOT NULL"
-                ];
-            } elseif ($filters['valid'] == 0) {
-                $conditions[] = [
-                    'and',  
-                    "countryCode IS NULL"
+                    $phoneConditions
                 ];
             }
         }
@@ -154,5 +206,18 @@ class SqliteResource implements ResourcInterface
         $select[] = $caseCondition;
 
         return implode(',', $select);
+    }
+
+    /**
+     * addOffset
+     *
+     * @return string
+     */
+    protected function addOffset(): string
+    {
+        $limit = self::PER_PAGE;
+        $offset = ($this->page - 1) * $limit;
+
+        return " Limit $limit OFFSET $offset";
     }
 }
