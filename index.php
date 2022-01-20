@@ -7,7 +7,8 @@ require './vendor/autoload.php';
 
 /* ['country' => '251'] */
 /* ['valid' => false] */
-$list = Phone::list($_GET);
+$total = Phone::total($_GET);
+$list = Phone::list($_GET, $_GET['page']??1);
 $countryList = CountryHelper::getCountries();
 ?>
 <html>
@@ -54,6 +55,16 @@ $countryList = CountryHelper::getCountries();
                     }
                 ?>
             </table>
+        </div>
+        <div>
+            <?php 
+                for ($i=0; $i < ($total) / 5; $i++) {
+                    $_GET['page'] = $i+1;
+            ?>
+            <a href="<?= '?'. http_build_query($_GET) ?>"><?= $i+1?></a>
+            <?php
+                }
+            ?>
         </div>
     </body>
 </html>
