@@ -141,8 +141,8 @@ class SqliteResource implements ResourcInterface
         }
         if (isset($filters['valid'])) {
             $countries = CountryHelper::getCountries();
+            $phoneConditions = [];
             foreach ($countries as $countryCode => $country) {
-                $phoneConditions = [];
                 if ($filters['valid'] == 1) {
                     $phoneConditions[] = [
                         'or',  
